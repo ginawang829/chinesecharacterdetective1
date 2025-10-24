@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chinese Character Detective Agency</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #1a1a2e;
+            color: #e6e6e6;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .page {
+            display: none;
+            background-color: #16213e;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            margin-top: 20px;
+            min-height: 500px;
+        }
+        
+        .active {
+            display: block;
+        }
+        
+        h1 {
+            color: #f8b500;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+        
+        h2 {
+            color: #f8b500;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f8b500;
+            padding-bottom: 5px;
+        }
+        
+        .story-intro {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .chapter-list {
+            list-style-type: none;
+            margin: 30px 0;
+        }
+        
+        .chapter-item {
+            background-color: #0f3460;
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+        
+        .chapter-item:hover {
+            background-color: #f8b500;
+            color: #16213e;
+            transform: translateX(10px);
+        }
+        
+        .dialogue {
+            background-color: #0f3460;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .character {
+            font-weight: bold;
+            color: #f8b500;
+            margin-bottom: 5px;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #f8b500;
+            background-color: #1a1a2e;
+            color: #e6e6e6;
+        }
+        
+        button {
+            background-color: #f8b500;
+            color: #16213e;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #ffcc33;
+            transform: scale(1.05);
+        }
+        
+        .feedback {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .correct {
+            background-color: #2e8b57;
+            display: block;
+        }
+        
+        .incorrect {
+            background-color: #b22222;
+            display: block;
+        }
+        
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+            display: none;
+        }
+        
+        .object-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .object-item {
+            background-color: #0f3460;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .object-item.selected {
+            background-color: #f8b500;
+            color: #16213e;
+        }
+        
+        .family-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .family-item {
+            background-color: #0f3460;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .family-item.selected {
+            background-color: #f8b500;
+            color: #16213e;
+        }
+        
+        .drag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+        
+        .drag-item {
+            background-color: #f8b500;
+            color: #16213e;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: move;
+            font-weight: bold;
+        }
+        
+        .family-tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        
+        .family-row {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            width: 100%;
+        }
+        
+        .family-member {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 15px;
+            position: relative;
+        }
+        
+        .person-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        .grandpa {
+            background-color: #8B4513;
+        }
+        
+        .grandma {
+            background-color: #D2691E;
+        }
+        
+        .dad {
+            background-color: #4682B4;
+        }
+        
+        .mom {
+            background-color: #FF69B4;
+        }
+        
+        .elder-brother {
+            background-color: #32CD32;
+        }
+        
+        .elder-sister {
+            background-color: #FF6347;
+        }
+        
+        .younger-brother {
+            background-color: #9370DB;
+        }
+        
+        .younger-sister {
+            background-color: #FFD700;
+        }
+        
+        .david {
+            background-color: #f8b500;
+        }
+        
+        .person-icon::before {
+            font-size: 40px;
+        }
+        
+        .grandpa::before {
+            content: "👴";
+        }
+        
+        .grandma::before {
+            content: "👵";
+        }
+        
+        .dad::before {
+            content: "👨";
+        }
+        
+        .mom::before {
+            content: "👩";
+        }
+        
+        .elder-brother::before {
+            content: "🧑‍🎓";
+        }
+        
+        .elder-sister::before {
+            content: "👩‍🎓";
+        }
+        
+        .younger-brother::before {
+            content: "👦";
+        }
+        
+        .younger-sister::before {
+            content: "👧";
+        }
+        
+        .david::before {
+            content: "😎";
+        }
+        
+        .drop-zone {
+            min-width: 120px;
+            min-height: 40px;
+            border: 2px dashed #f8b500;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 5px;
+            padding: 5px;
+            text-align: center;
+        }
+        
+        .drop-zone.correct {
+            border: 2px solid #2e8b57;
+            background-color: rgba(46, 139, 87, 0.2);
+        }
+        
+        .connector {
+            position: absolute;
+            background-color: #f8b500;
+            height: 2px;
+            width: 100px;
+            top: 40px;
+        }
+        
+        .connector-vertical {
+            position: absolute;
+            background-color: #f8b500;
+            width: 2px;
+            height: 40px;
+            top: -40px;
+            left: 50%;
+        }
+        
+        .mini-game-container {
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .thought-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            max-width: 400px;
+        }
+        
+        .thought-bubble {
+            background-color: white;
+            color: #16213e;
+            padding: 15px;
+            border-radius: 20px;
+            position: relative;
+            font-style: italic;
+            margin-right: 15px;
+        }
+        
+        .thought-bubble:after {
+            content: '';
+            position: absolute;
+            bottom: 15px;
+            right: -15px;
+            border-width: 10px 0 10px 15px;
+            border-style: solid;
+            border-color: transparent white;
+        }
+        
+        .david-thought {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #f8b500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+        
+        .teaser {
+            text-align: center;
+            font-style: italic;
+            margin-top: 30px;
+            color: #f8b500;
+        }
+        
+        .question-input {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+        
+        .question-input span {
+            margin: 0 5px;
+        }
+        
+        .question-input input {
+            width: 80px;
+            text-align: center;
+        }
+        
+        .question-display {
+            font-size: 1.2rem;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #0f3460;
+            border-radius: 5px;
+        }
+        
+        .instructions {
+            background-color: #0f3460;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .code-container {
+            background-color: #0f3460;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .code-hint {
+            margin: 10px 0;
+            font-size: 1.1rem;
+        }
+        
+        .final-code {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #f8b500;
+            margin: 20px 0;
+            letter-spacing: 5px;
+        }
+        
+        .code-input-grid {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .code-input {
+            width: 50px;
+            height: 60px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: 2px solid #f8b500;
+            border-radius: 5px;
+            background-color: #1a1a2e;
+            color: #e6e6e6;
+        }
+        
+        .code-input:focus {
+            outline: none;
+            border-color: #ffcc33;
+            box-shadow: 0 0 5px #ffcc33;
+        }
+        
+        .code-input.correct {
+            border-color: #2e8b57;
+            background-color: rgba(46, 139, 87, 0.2);
+        }
+        
+        .hint-container {
+            background-color: #0f3460;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .hint-title {
+            color: #f8b500;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Page 1: Welcome -->
+        <div id="page1" class="page active">
+            <h1>Welcome to the Chinese Character Detective Agency 🕵️‍♂️</h1>
+            <div class="story-intro">
+                <p>The case files are open, and the characters are clues. Welcome to the Chinese Character Detective Agency! As our newest sleuth, you'll untangle puzzling problems for a cast of curious clients and become a master of Chinese along the way.</p>
+            </div>
+            
+            <h2>Chapter List:</h2>
+            <ul class="chapter-list">
+                <li class="chapter-item" onclick="showPage('page2')">🔍 Chapter 1: The Detective Interview</li>
+                <li class="chapter-item" onclick="showPage('page3')">🎁 Chapter 2: The Mysterious Gift</li>
+                <li class="chapter-item" onclick="showPage('page4')">⏳ Chapter 3: The Time Riddle</li>
+            </ul>
+            <p style="text-align: center;">(Click on a chapter to begin!)</p>
+        </div>
+        
+        <!-- Page 2: Chapter 1 - The Detective Interview -->
+        <div id="page2" class="page">
+            <h1>Chapter 1: The Detective Interview</h1>
+            <p>Scene: You're at the detective agency headquarters, meeting the Director.</p>
+            
+            <div class="dialogue">
+                <div class="character">Director:</div>
+                <p>"Welcome! Let's see if you've got what it takes to join our team. Answer these questions in Chinese:"</p>
+            </div>
+            
+            <div id="interview-questions">
+                <div class="dialogue">
+                    <div class="character">Director:</div>
+                    <p>你好</p>
+                    <input type="text" id="answer1" placeholder="Type your answer here">
+                    <button onclick="checkAnswer(1, '你好')">Submit</button>
+                    <div id="feedback1" class="feedback"></div>
+                </div>
+                
+                <div class="dialogue" style="display:none" id="q2">
+                    <div class="character">Director:</div>
+                    <p>你叫什么名字？</p>
+                    <input type="text" id="answer2" placeholder="Type your answer here">
+                    <button onclick="checkAnswer(2, '我叫[name]')">Submit</button>
+                    <div id="feedback2" class="feedback"></div>
+                </div>
+                
+                <div class="dialogue" style="display:none" id="q3">
+                    <div class="character">Director:</div>
+                    <p>你是哪国人？</p>
+                    <input type="text" id="answer3" placeholder="Type your answer here">
+                    <button onclick="checkAnswer(3, '我是[country]人')">Submit</button>
+                    <div id="feedback3" class="feedback"></div>
+                </div>
+                
+                <div class="dialogue" style="display:none" id="q4">
+                    <div class="character">Director:</div>
+                    <p>你是学生吗？</p>
+                    <input type="text" id="answer4" placeholder="Type your answer here">
+                    <button onclick="checkAnswer(4, '是，我是学生')">Submit</button>
+                    <div id="feedback4" class="feedback"></div>
+                </div>
+                
+                <div class="dialogue" style="display:none" id="q5">
+                    <div class="character">Director:</div>
+                    <p>你家有几口人？</p>
+                    <input type="text" id="answer5" placeholder="Type your answer here">
+                    <button onclick="checkAnswer(5, '我家有[number]口人')">Submit</button>
+                    <div id="feedback5" class="feedback"></div>
+                </div>
+                
+                <div class="dialogue" style="display:none" id="q6">
+                    <div class="character">Director:</div>
+                    <p>你有兄弟姐妹吗？</p>
+                    <input type="text" id="answer6" placeholder="Type your answer here">
+                    <button onclick="checkAnswer(6, '我有 / 我没有')">Submit</button>
+                    <div id="feedback6" class="feedback"></div>
+                </div>
+                
+                <div class="dialogue" style="display:none" id="q7">
+                    <div class="character">Director:</div>
+                    <p>你爸爸做什么工作？</p>
+                    <input type="text" id="answer7" placeholder="Type your answer here">
+                    <button onclick="checkAnswer(7, '我爸爸是[occupation]')">Submit</button>
+                    <div id="feedback7" class="feedback"></div>
+                </div>
+            </div>
+            
+            <div id="success-message" style="display:none; text-align:center;">
+                <div class="dialogue">
+                    <div class="character">Director:</div>
+                    <p>"Congratulations! You're hired!"</p>
+                </div>
+                
+                <div class="dialogue">
+                    <div class="character">Director:</div>
+                    <p>"Welcome aboard! 我叫Sherlock Konan。我今年52岁。很高兴认识你！"</p>
+                </div>
+                
+                <button onclick="showPage('page3')">Continue to Chapter 2</button>
+            </div>
+        </div>
+        
+        <!-- Page 3: Chapter 2 - The Mysterious Gift -->
+        <div id="page3" class="page">
+            <h1>Chapter 2: The Mysterious Gift</h1>
+            <p>Scene: David visits the agency. He received an anonymous gift and doesn't know what it is or who sent it.</p>
+            
+            <div class="dialogue">
+                <div class="character">David:</div>
+                <p>"Can you help me figure out what this gift is?"</p>
+            </div>
+            
+            <h2>Your Task – Part 1:</h2>
+            <p>Ask: "这是一 [measure word] + [object] 吗？"</p>
+            <p>Example: 这是一个杯子吗？ (Is this a cup?)</p>
+            
+            <div class="object-grid">
+                <div class="object-item" data-object="书" data-measure="本">书 / 本</div>
+                <div class="object-item" data-object="笔" data-measure="支">笔 / 支</div>
+                <div class="object-item" data-object="词典" data-measure="本">词典 / 本</div>
+                <div class="object-item" data-object="地图" data-measure="张">地图 / 张</div>
+                <div class="object-item" data-object="手机" data-measure="个">手机 / 个</div>
+                <div class="object-item" data-object="照片" data-measure="张">照片 / 张</div>
+                <div class="object-item" data-object="本子" data-measure="个">本子 / 个</div>
+                <div class="object-item" data-object="杯子" data-measure="个">杯子 / 个</div>
+            </div>
+            
+            <div class="dialogue">
+                <div class="character">You:</div>
+                <div class="question-input">
+                    <span>这是</span>
+                    <input type="text" id="measure-word-input" placeholder="measure word">
+                    <input type="text" id="object-input" placeholder="object">
+                    <span>吗？</span>
+                </div>
+                <div class="question-display" id="question-display-part1">这是 ___ ___ 吗？</div>
+                <button onclick="checkObjectGuess()">Ask</button>
+                <div id="object-feedback" class="feedback"></div>
+            </div>
+            
+            <div id="part2" style="display:none">
+                <h2>Your Task – Part 2:</h2>
+                <p>Now, guess who sent it.</p>
+                <p>Ask: "大卫的 _______ 送大卫生日礼物吗？"</p>
+                <p>Example: 大卫的哥哥送大卫生日礼物吗？ (Does David's brother give David a birthday gift?)</p>
+                
+                <div class="family-grid">
+                    <div class="family-item" data-family="哥哥">哥哥</div>
+                    <div class="family-item" data-family="弟弟">弟弟</div>
+                    <div class="family-item" data-family="姐姐">姐姐</div>
+                    <div class="family-item" data-family="妹妹">妹妹</div>
+                    <div class="family-item" data-family="爸爸">爸爸</div>
+                    <div class="family-item" data-family="妈妈">妈妈</div>
+                    <div class="family-item" data-family="爷爷">爷爷</div>
+                    <div class="family-item" data-family="奶奶">奶奶</div>
+                </div>
+                
+                <div class="dialogue">
+                    <div class="character">You:</div>
+                    <div class="question-input">
+                        <span>大卫的</span>
+                        <input type="text" id="family-input" placeholder="family member">
+                        <span>送大卫生日礼物吗？</span>
+                    </div>
+                    <div class="question-display" id="question-display-part2">大卫的 ___ 送大卫生日礼物吗？</div>
+                    <button onclick="checkFamilyGuess()">Ask</button>
+                    <div id="family-feedback" class="feedback"></div>
+                </div>
+            </div>
+            
+            <div id="case-solved" style="display:none; text-align:center;">
+                <div class="dialogue">
+                    <div class="character">You:</div>
+                    <p>"你的奶奶送你一张照片！Your grandma sent you a photo!"</p>
+                </div>
+                <p>🎉 Case Solved!</p>
+                <button onclick="showMiniGame()">Continue to Bonus Game</button>
+            </div>
+            
+            <div id="mini-game" style="display:none">
+                <h2>Bonus Mini-Game: Family Tree</h2>
+                <div class="instructions">
+                    <p>Drag the Chinese family member terms to the correct English labels on the family tree.</p>
+                </div>
+                
+                <div class="mini-game-container">
+                    <div class="family-tree">
+                        <!-- Grandparents Row -->
+                        <div class="family-row">
+                            <div class="family-member">
+                                <div class="person-icon grandpa"></div>
+                                <div class="drop-zone" id="grandpa-drop">Grandpa</div>
+                            </div>
+                            <div class="family-member">
+                                <div class="person-icon grandma"></div>
+                                <div class="drop-zone" id="grandma-drop">Grandma</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Parents Row -->
+                        <div class="family-row">
+                            <div class="family-member">
+                                <div class="person-icon dad"></div>
+                                <div class="drop-zone" id="dad-drop">Dad</div>
+                            </div>
+                            <div class="family-member">
+                                <div class="person-icon mom"></div>
+                                <div class="drop-zone" id="mom-drop">Mom</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Children Row -->
+                        <div class="family-row">
+                            <div class="family-member">
+                                <div class="person-icon elder-brother"></div>
+                                <div class="drop-zone" id="elder-brother-drop">Elder Brother</div>
+                            </div>
+                            <div class="family-member">
+                                <div class="person-icon elder-sister"></div>
+                                <div class="drop-zone" id="elder-sister-drop">Elder Sister</div>
+                            </div>
+                            <div class="family-member">
+                                <div class="person-icon david"></div>
+                                <div class="drop-zone" id="david-drop">David</div>
+                            </div>
+                            <div class="family-member">
+                                <div class="person-icon younger-brother"></div>
+                                <div class="drop-zone" id="younger-brother-drop">Younger Brother</div>
+                            </div>
+                            <div class="family-member">
+                                <div class="person-icon younger-sister"></div>
+                                <div class="drop-zone" id="younger-sister-drop">Younger Sister</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="drag-container">
+                        <div class="drag-item" draggable="true" data-family="爷爷">爷爷</div>
+                        <div class="drag-item" draggable="true" data-family="奶奶">奶奶</div>
+                        <div class="drag-item" draggable="true" data-family="爸爸">爸爸</div>
+                        <div class="drag-item" draggable="true" data-family="妈妈">妈妈</div>
+                        <div class="drag-item" draggable="true" data-family="哥哥">哥哥</div>
+                        <div class="drag-item" draggable="true" data-family="姐姐">姐姐</div>
+                        <div class="drag-item" draggable="true" data-family="弟弟">弟弟</div>
+                        <div class="drag-item" draggable="true" data-family="妹妹">妹妹</div>
+                        <div class="drag-item" draggable="true" data-family="大卫">大卫</div>
+                    </div>
+                    
+                    <button onclick="checkMiniGame()">Check Answers</button>
+                    <div id="mini-game-feedback" class="feedback"></div>
+                </div>
+                
+                <div class="thought-container" style="display:none" id="thought-container">
+                    <div class="thought-bubble">
+                        "我有一个姐姐吗？"
+                    </div>
+                    <div class="david-thought">😎</div>
+                </div>
+                
+                <div id="continue-chapter3" style="display:none; text-align:center;">
+                    <button onclick="showPage('page4')">Continue to Chapter 3</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Page 4: Chapter 3 - The Time Riddle -->
+        <div id="page4" class="page">
+            <h1>Chapter 3: The Time Riddle</h1>
+            <p>Scene: David turns over the photo and finds a mysterious note on the back.</p>
+            
+            <div class="dialogue">
+                <div class="character">The Riddle:</div>
+                <p>If you want the truth, meet me at...</p>
+                <p>I am the day that leaps into being,<br>
+                A date you won't find on every yearly ring.<br>
+                I follow the last day of winter's first reign,<br>
+                And I only appear on a four-year train.</p>
+                
+                <p>The hour is when the sun crowns the sky,<br>
+                And the short hand is up, the long hand is high.<br>
+                When morning has ended, afternoon is new,<br>
+                That's the precise moment I have for you.</p>
+            </div>
+            
+            <h2>Your Task:</h2>
+            <p>Type the date and time in Chinese:</p>
+            
+            <div class="dialogue">
+                <p>我们 <input type="text" id="time-answer" placeholder="Type your answer here"> 见。</p>
+                <button onclick="checkTimeAnswer()">Submit</button>
+                <div id="time-feedback" class="feedback"></div>
+            </div>
+            
+            <div id="chapter3-success" style="display:none; text-align:center;">
+                <p>🎉 CORRECT!</p>
+                
+                <div class="code-container">
+                    <h2>Congratulations Detective!</h2>
+                    <p>You've solved all the cases! To receive your surprise gift, enter the secret code below:</p>
+                    
+                    <div class="code-input-grid">
+                        <input type="text" maxlength="1" class="code-input" id="code1">
+                        <input type="text" maxlength="1" class="code-input" id="code2">
+                        <input type="text" maxlength="1" class="code-input" id="code3">
+                        <input type="text" maxlength="1" class="code-input" id="code4">
+                        <input type="text" maxlength="1" class="code-input" id="code5">
+                        <input type="text" maxlength="1" class="code-input" id="code6">
+                        <input type="text" maxlength="1" class="code-input" id="code7">
+                        <input type="text" maxlength="1" class="code-input" id="code8">
+                    </div>
+                    
+                    <button onclick="checkCode()">Submit Code</button>
+                    <div id="code-feedback" class="feedback"></div>
+                    
+                    <div class="hint-container">
+                        <div class="hint-title">Need hints? Think about what you learned:</div>
+                        <div class="code-hint">1. Agency director 今年多少岁？</div>
+                        <div class="code-hint">2. 大卫家有几口人？</div>
+                        <div class="code-hint">3. 我们几月几号几点见？</div>
+                    </div>
+                </div>
+                
+                <div id="final-success" style="display:none;">
+                    <div class="final-code">52922912</div>
+                    <p>Perfect! Bring this code to your teacher to receive your surprise gift!</p>
+                    
+                    <div class="teaser">
+                        <p>"What happened to Xiao Yun's elder sister? Wait until next time~"</p>
+                    </div>
+                    <button onclick="showPage('page1')">Return to Chapter List</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="fireworks" id="fireworks"></div>
+
+    <script>
+        // Navigation between pages
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show the selected page
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+            } else {
+                console.error('Page not found:', pageId);
+            }
+        }
+
+        // Initialize the page navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Make sure the first page is active
+            showPage('page1');
+            
+            // Add click event listeners to chapter items
+            document.querySelectorAll('.chapter-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const targetPage = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+                    showPage(targetPage);
+                });
+            });
+
+            // Add auto-focus for code inputs
+            document.querySelectorAll('.code-input').forEach((input, index, inputs) => {
+                input.addEventListener('input', function() {
+                    if (this.value.length === 1 && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+            });
+        });
+        
+        // Chapter 1: Interview questions
+        let currentQuestion = 1;
+        
+        function checkAnswer(questionNum, expectedAnswer) {
+            const userAnswer = document.getElementById(`answer${questionNum}`).value.trim();
+            const feedback = document.getElementById(`feedback${questionNum}`);
+            
+            // For simplicity, we're checking if the answer contains key elements
+            // In a real application, you'd want more sophisticated validation
+            let isCorrect = false;
+            
+            switch(questionNum) {
+                case 1:
+                    isCorrect = userAnswer === '你好';
+                    break;
+                case 2:
+                    isCorrect = userAnswer.includes('我叫');
+                    break;
+                case 3:
+                    isCorrect = userAnswer.includes('我是') && userAnswer.includes('人');
+                    break;
+                case 4:
+                    isCorrect = userAnswer.includes('是') || userAnswer.includes('不是');
+                    break;
+                case 5:
+                    isCorrect = userAnswer.includes('我家有') && userAnswer.includes('口人');
+                    break;
+                case 6:
+                    isCorrect = userAnswer.includes('我有') || userAnswer.includes('我没有');
+                    break;
+                case 7:
+                    // Accept multiple variations for "What does your father do?"
+                    isCorrect = userAnswer.includes('是') || 
+                               userAnswer.includes('爸爸是') || 
+                               userAnswer.includes('他是') || 
+                               userAnswer.includes('我的爸爸是');
+                    break;
+            }
+            
+            if (isCorrect) {
+                feedback.textContent = "Correct!";
+                feedback.className = "feedback correct";
+                
+                // Show next question after a delay
+                setTimeout(() => {
+                    if (questionNum < 7) {
+                        document.getElementById(`q${questionNum + 1}`).style.display = 'block';
+                    } else {
+                        // All questions answered
+                        document.getElementById('success-message').style.display = 'block';
+                        showFireworks();
+                    }
+                }, 1000);
+            } else {
+                feedback.textContent = "Try again!";
+                feedback.className = "feedback incorrect";
+            }
+        }
+        
+        // Chapter 2: Object guessing
+        document.querySelectorAll('.object-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // Remove selection from all items
+                document.querySelectorAll('.object-item').forEach(i => {
+                    i.classList.remove('selected');
+                });
+                
+                // Add selection to clicked item
+                this.classList.add('selected');
+                
+                // Auto-fill the inputs
+                const measureWord = this.getAttribute('data-measure');
+                const object = this.getAttribute('data-object');
+                
+                document.getElementById('measure-word-input').value = measureWord;
+                document.getElementById('object-input').value = object;
+                
+                // Update the question display
+                document.getElementById('question-display-part1').textContent = 
+                    `这是 ${measureWord} ${object} 吗？`;
+            });
+        });
+        
+        function checkObjectGuess() {
+            const measureWord = document.getElementById('measure-word-input').value.trim();
+            const object = document.getElementById('object-input').value.trim();
+            const feedback = document.getElementById('object-feedback');
+            
+            if (object === '照片' && measureWord === '张') {
+                feedback.textContent = "对，这是！";
+                feedback.className = "feedback correct";
+                
+                setTimeout(() => {
+                    document.getElementById('part2').style.display = 'block';
+                }, 1500);
+            } else {
+                feedback.textContent = "不，这不是。";
+                feedback.className = "feedback incorrect";
+            }
+        }
+        
+        // Chapter 2: Family guessing
+        document.querySelectorAll('.family-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // Remove selection from all items
+                document.querySelectorAll('.family-item').forEach(i => {
+                    i.classList.remove('selected');
+                });
+                
+                // Add selection to clicked item
+                this.classList.add('selected');
+                
+                // Auto-fill the input
+                const familyMember = this.getAttribute('data-family');
+                document.getElementById('family-input').value = familyMember;
+                
+                // Update the question display
+                document.getElementById('question-display-part2').textContent = 
+                    `大卫的 ${familyMember} 送大卫生日礼物吗？`;
+            });
+        });
+        
+        function checkFamilyGuess() {
+            const familyMember = document.getElementById('family-input').value.trim();
+            const feedback = document.getElementById('family-feedback');
+            
+            if (familyMember === '奶奶') {
+                feedback.textContent = "对！";
+                feedback.className = "feedback correct";
+                
+                setTimeout(() => {
+                    document.getElementById('case-solved').style.display = 'block';
+                }, 1500);
+            } else if (familyMember === '姐姐') {
+                feedback.textContent = "不，大卫没有姐姐。";
+                feedback.className = "feedback incorrect";
+            } else {
+                feedback.textContent = "不是。";
+                feedback.className = "feedback incorrect";
+            }
+        }
+        
+        // Chapter 2: Mini-game
+        function showMiniGame() {
+            document.getElementById('case-solved').style.display = 'none';
+            document.getElementById('mini-game').style.display = 'block';
+            
+            // Set up drag and drop
+            const dragItems = document.querySelectorAll('.drag-item');
+            const dropZones = document.querySelectorAll('.drop-zone');
+            
+            dragItems.forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', this.getAttribute('data-family'));
+                });
+            });
+            
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                });
+                
+                zone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    const data = e.dataTransfer.getData('text/plain');
+                    this.textContent = data;
+                    this.setAttribute('data-filled', data);
+                });
+            });
+        }
+        
+        function checkMiniGame() {
+            const feedback = document.getElementById('mini-game-feedback');
+            
+            // Check if all drop zones are filled correctly
+            const correctPairs = {
+                'grandpa-drop': '爷爷',
+                'grandma-drop': '奶奶',
+                'dad-drop': '爸爸',
+                'mom-drop': '妈妈',
+                'elder-brother-drop': '哥哥',
+                'elder-sister-drop': '姐姐',
+                'younger-brother-drop': '弟弟',
+                'younger-sister-drop': '妹妹',
+                'david-drop': '大卫'
+            };
+            
+            let allCorrect = true;
+            
+            for (const [dropId, correctAnswer] of Object.entries(correctPairs)) {
+                const dropZone = document.getElementById(dropId);
+                const userAnswer = dropZone.getAttribute('data-filled');
+                
+                if (userAnswer === correctAnswer) {
+                    dropZone.classList.add('correct');
+                } else {
+                    dropZone.classList.remove('correct');
+                    allCorrect = false;
+                }
+            }
+            
+            if (allCorrect) {
+                feedback.textContent = "Great job! All family members are labeled correctly!";
+                feedback.className = "feedback correct";
+                
+                setTimeout(() => {
+                    document.getElementById('thought-container').style.display = 'flex';
+                    
+                    setTimeout(() => {
+                        document.getElementById('continue-chapter3').style.display = 'block';
+                    }, 2000);
+                }, 1500);
+            } else {
+                feedback.textContent = "Some labels are incorrect. Try again!";
+                feedback.className = "feedback incorrect";
+            }
+        }
+        
+        // Chapter 3: Time riddle
+        function checkTimeAnswer() {
+            const userAnswer = document.getElementById('time-answer').value.trim();
+            const feedback = document.getElementById('time-feedback');
+            
+            // Accept multiple formats for the answer
+            const acceptedAnswers = [
+                '二月二十九号中午十二点',
+                '2月29号中午12点',
+                '2月29号中午十二点'
+            ];
+            
+            if (acceptedAnswers.includes(userAnswer)) {
+                feedback.textContent = "Correct!";
+                feedback.className = "feedback correct";
+                showFireworks();
+                
+                setTimeout(() => {
+                    document.getElementById('chapter3-success').style.display = 'block';
+                }, 1500);
+            } else {
+                feedback.textContent = "Try again! Remember: February 29th at noon.";
+                feedback.className = "feedback incorrect";
+            }
+        }
+        
+        // Final code validation
+        function checkCode() {
+            const code1 = document.getElementById('code1').value;
+            const code2 = document.getElementById('code2').value;
+            const code3 = document.getElementById('code3').value;
+            const code4 = document.getElementById('code4').value;
+            const code5 = document.getElementById('code5').value;
+            const code6 = document.getElementById('code6').value;
+            const code7 = document.getElementById('code7').value;
+            const code8 = document.getElementById('code8').value;
+            
+            const enteredCode = code1 + code2 + code3 + code4 + code5 + code6 + code7 + code8;
+            const feedback = document.getElementById('code-feedback');
+            
+            if (enteredCode === '52922912') {
+                feedback.textContent = "Correct! You've unlocked the secret code!";
+                feedback.className = "feedback correct";
+                
+                // Mark all inputs as correct
+                document.querySelectorAll('.code-input').forEach(input => {
+                    input.classList.add('correct');
+                });
+                
+                setTimeout(() => {
+                    document.getElementById('final-success').style.display = 'block';
+                    showFireworks();
+                }, 1500);
+            } else {
+                feedback.textContent = "Incorrect code. Check the hints and try again!";
+                feedback.className = "feedback incorrect";
+            }
+        }
+        
+        // Fireworks effect
+        function showFireworks() {
+            const fireworks = document.getElementById('fireworks');
+            fireworks.style.display = 'block';
+            
+            setTimeout(() => {
+                fireworks.style.display = 'none';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
